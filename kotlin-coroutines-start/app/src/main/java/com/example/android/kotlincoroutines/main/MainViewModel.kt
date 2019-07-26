@@ -20,6 +20,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.android.kotlincoroutines.util.BACKGROUND
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 
 /**
  * MainViewModel designed to store and manage UI-related data in a lifecycle conscious way. This
@@ -38,6 +41,8 @@ class MainViewModel : ViewModel() {
      * class that should be setting values.
      */
     private val _snackBar = MutableLiveData<String>()
+    private val viewModelJob = Job()
+    private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
     /**
      * Request a snackbar to display a string.
@@ -55,6 +60,11 @@ class MainViewModel : ViewModel() {
             // use postValue since we're in a background thread
             _snackBar.postValue("Hello, from threads!")
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        viewModelJob.cancel()
     }
 
     /**
